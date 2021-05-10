@@ -23,7 +23,7 @@
       <a class="navbar-item" href="/projects">
         Projects
       </a>
-         <a class="about-link" href="#">
+         <a class="navbar-item" href="/about">
          About
       </a>
        <a class="navbar-item" href="/contact">
@@ -71,44 +71,6 @@
   </div>
 </footer>
 
-      <div id="about-modal" class="modal">
-  <div id="about-modal-background" class="modal-background"></div>
-  <div class="modal-content">
-    <!-- Any other Bulma elements you want -->
-    <div class="about-project-container">
-      <h3>
-        
-      About</h3>
-      <p>
-        This is a portfolio site to display my work in data visualization and analysis. I am currently a student in the MS Data Analytics and Visualization program at Pratt Institute.
-      </p>
-    </div>
-  </div>
-  <button id="about-close" class="modal-close is-large" aria-label="close"></button>
-</div>
-
-<script>
-      var aboutLink = document.getElementById('about-link')
-      var aboutModal = document.getElementById('about-modal')
-      var aboutClose = document.getElementById('about-close')
-      var aboutBackground = document.getElementById('about-modal-background')
-      
-      aboutLink.addEventListener('click', function(event){
-        aboutModal.classList.toggle('is-active')
-        event.preventDefault()
-      })
-      
-         aboutClose.addEventListener('click', function(event){
-        aboutModal.classList.toggle('is-active')
-    
-      })
-      
-          aboutBackground.addEventListener('click', function(event){
-        aboutModal.classList.toggle('is-active')
-    
-      })
-      
-      </script>  
 
 </body>
 </html>
