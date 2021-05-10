@@ -1,1 +1,25 @@
 /* custom stylesheet for erinmmurphy.github.io */
+
+main{
+  padding-left:3.5em;
+  padding-right:3.5em;
+}
+
+.projects-container{
+	  display:flex;
+  flex-direction:row;
+}
+
+.project-snippet{
+	flex:1:;
+	text-align: : center;
+}
+
+.project_snippet img{
+	width: 75%;
+}
+
+.about-project-container{
+  background-color:white;
+  padding:2em;
+}
