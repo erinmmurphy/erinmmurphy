@@ -12,14 +12,22 @@ main{
 
 .project-snippet{
 	flex:1:;
-	text-align: : center;
+	text-align: center;
+}
+
+.project_snippet a{
+   text-decoration: none;
+  color: black;
 }
 
 .project_snippet img{
 	width: 75%;
 }
 
-.about-project-container{
-  background-color:white;
-  padding:2em;
+.project_image{
+	  width: 80%;
+  height: 375px;
+  margin:auto;
+  background-size:contain;
+  background-repeat:no-repeat;
 }
