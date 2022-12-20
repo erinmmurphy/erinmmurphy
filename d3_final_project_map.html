@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <title>Sleep Duration by City</title>
+    <script src= "https://d3js.org/d3.v7.min.js"></script>
+    <script src= "https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script>
+    <style type="text/css">
+      body {
+        width: 600px;
+        margin: .2;
+
+        background: rgb(245,246,209);
+      background: linear-gradient(rgba(245,246,209,1) 0%, rgba(163,197,236,1) 100%) fixed;
+        }   
+         
+        h1 {
+            text-align: right;
+            font-size: 20px;
+            color: black;
+            }  
+
+            h2 {
+            text-align: right;
+            font-size: 14px;
+            color: black;
+            }  
+
+        .circles:hover{
+            fill: rgb(148, 168, 184);
+            stroke: navy;
+          }
+          
+          /*style your tooltip*/
+          #tooltip{
+            position: absolute;
+            width: 90px;
+            height: 60px;
+            padding: 2px;    
+            text-align: center; 
+            font-family:sans-serif;
+            font-size: 12px;
+            font-weight: 350;
+            background: white; 
+            border-radius: 8px;
+          }
+
+    </style>
+    </head>
+    <body>
+      <h1 style="font-family:sans-serif;">Average Hours Asleep By Location</h1>
+
+        <script type="text/javascript">
+        
+        //svg information
+        const width = 1050;
+        const height = 600;
+        const svg = d3.select("body")
+                      .append("svg")
+                      .attr("width", width)
+                      .attr("height", height);
+        
+        const g = svg.append("g");
+        
+         //tooltip (positioned outside of SVG)
+         const tooltip =d3.select("body")
+                          .append("div")
+                          .attr("id", "tooltip")
+                          .style("opacity", 0);
+
+        //projections for our map
+        const projection = d3.geoAlbersUsa() //note how this projection us USA-specific! 
+                             .scale(1300) //projection scale
+                             .translate([550, 300]); //translate (try changing these and seeing what happens--especially to HI, WA, & AK) 
+        
+        //path generator for our map 
+        const geoPath = d3.geoPath(projection);
+
+        //The shape data for this chart is topojson's US Atlas file "counties-10m" in topojson from https://github.com/topojson/us-atlas a prebuilt file from US Census Bureau shapefiles
+        //See also their world atlas file, which uses Natural Earth data: https://github.com/topojson/world-atlas  
+        
+        Promise.all([
+        d3.json("counties-10m.json"),
+        d3.csv("sleep_by_city.csv"),//NOTE: this data is a slightly edited version of (https://gist.github.com/jessieliu1/ddda59513cefbdc6309a4ce9d639cfc9); it is for example only! I did not check that it is accurate or clean--please src your own.
+            ]).then(function(files) {
+                // files[0] will contain the geodata
+                // files[1] will contain cities data
+            let geodata = files[0]
+            let data = files[1]
+
+        //make variables to include below
+        const states = topojson.feature(geodata, geodata.objects.states).features;
+        const counties = topojson.feature(geodata, geodata.objects.counties).features;
+        const nation = topojson.feature(geodata, geodata.objects.nation).features;
+
+        states.filter(d => console.log(d.properties.name)); //see the names of the states in the data in the console
+        console.log(states);
+        console.log(counties);
+        console.log(nation);
+
+      /*radius = d3.scaleSqrt()
+    .domain([0, 1000])
+    .range([0, 8]);*/
+
+        //make map 
+        g.selectAll("path")
+        .data(states)//open the json file to see how this data is being called
+        //.data(counties)
+        //.data(nation)
+        .join("path") 
+        .attr("d", geoPath)
+        .attr("fill", "#D6D6D6")
+        .attr("stroke", "#FFFFFF")
+        .attr("stroke-width", ".8px");           
+        
+        //make circles
+        g.selectAll("circle")
+        .data(data)
+        .join("circle")
+        .attr("class", "circles")
+    
+        .attr("cx", d => projection([+d.long, +d.lat])[0])
+        .attr("cy", d => projection([+d.long, +d.lat])[1])
+       .attr("r", 7)
+       //.attr('r', function(d) { 
+        //return radius(d.properties.sleep_quality)
+        .attr("fill", "navy")
+        .attr("stroke", "#FFFFFF")
+        .attr("stroke-width", ".80px")
+        .attr("opacity", .75)
+        .on("mouseover", (event, d)=> {
+             d3.select("#tooltip")
+               .transition()
+               .duration(300)//milliseconds!
+               .style("opacity", 1)
+               .style("left", (event.pageX + 2) + "px")//x coordinate of mouse
+               .style("top", (event.pageY + 2) + "px")//y coordinate of mouse
+        tooltip.html("City: " + "<br>" + d.city + "<br>" + "Avg Time Asleep: " + +d.avg_time_asleep );//setting the html here for the <br>
+               //.text("Value: " + d.val);  // note: you could just do the .text() per usual
+            })     
+          .on("mouseout", (event, d)=>{
+            d3.select("#tooltip")
+              .transition()
+              .style("opacity", 0);
+            })
+          .on("mousemove", (event, d) =>{
+            d3.select("#tooltip")
+              .style("left", (event.pageX + 2) + "px")
+              .style("top", (event.pageY + 2) + "px");
+    })
+})
+
+        </script>
+    </body>
+</html>
