@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Sleep Line Chart</title>
+        <script src= "https://d3js.org/d3.v7.min.js"></script>
+        <style type="text/css">
+          
+          body {
+        width: 600px;
+       
+        margin: .2;
+       /* background-color: lightsteelblue;*/
+       background: rgb(245,246,209);
+      background: linear-gradient(rgba(245,246,209,1) 0%, rgba(163,197,236,1) 100%) fixed;
+        }   
+      
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: sans-serif;
+          }
+
+        .label{
+            font-size: 14px;
+            font-weight: normal;
+            font-family: sans-serif;
+          }
+
+        .description {
+            font-size: 14px;
+            font-weight: normal;
+            font-family: sans-serif;
+        }
+
+  
+
+        .line {
+          fill: none;
+          stroke: midnightblue;
+          stroke-width: 2px;
+        }
+
+        .line:hover{
+            fill: navy;
+            opacity: 0.3;
+            stroke: rgb(1, 1, 51);
+            stroke-width: 2;
+            stroke-opacity: 4;
+          }
+          
+        
+          #tooltip{
+            position: absolute;
+            width: 90px;
+            height: 60px;
+            padding: 2px;    
+            text-align: center; 
+            font-family:sans-serif;
+            font-size: 12px;
+            font-weight: 350;
+            background: white; 
+            border-radius: 8px;
+          }
+
+        </style>
+    </head>
+    <body>
+      <div id="vis"></div> 
+    <svg width="0" height="0"></svg>
+    	
+
+    <script type="text/javascript">
+
+    const svg = d3.select("svg");             
+    const width = 500;
+    const height = 500;
+    //const width = 960 - margin.left - margin.right;
+    //const height = 500 - margin.top - margin.bottom;
+    //const padding = 20;
+    //const margin = 40
+    const margin = {top: 30, right: 60, bottom: 50, left: 35};
+    
+    const parseTime = d3.timeParse("%Y");
+
+            /*d3.csv("sleep_qual_by_yr.csv")
+            .then( function (d) {    
+              return { year : d3.timeParse("%Y-%m-%d")(d.year), 
+                      value : +d.avg_sleep_quality }
+            },
+          function(dataset) {*/
+          
+            d3.csv("sleep_qual_by_yr.csv").then(dataset => { 
+            //.then( function (dataset) { 
+            
+              dataset.forEach(d => {
+                //d.year = d.year
+                d.year = parseTime(d.year);
+                d.value = +d.avg_sleep_duration;
+            });
+                //const maxY = d3.max(dataset, d => +d.avg_sleep_quality);
+
+                const xScale = d3.scaleTime()
+                                 //.domain(dataset.map(d => d.date))
+                                 //.domain(d3.range(dataset.length))
+                                //.range([margin, width - margin])
+                                .domain(d3.extent(dataset, d => d.year))
+                               .range([margin.left, width - margin.right]); 
+                               //.range([margin, width-margin]);
+                                //.range([padding, w-padding]); 
+                
+                const yScale = d3.scaleLinear()
+                                 //.domain([0, maxY]) 
+                                 //.range([height - margin, margin]);
+                                 .domain([0, d3.max(dataset, (d) => d.value)]).nice()
+                                .range([height - margin.bottom, margin.top]); 
+                                //.range[(height-margin, margin)];
+                                //.range([h-padding, padding]);
+                
+                /*const bottomAxis = d3.axisBottom()
+                                     .scale(xScale)
+                                     .ticks(20);
+                
+                const leftAxis = d3.axisLeft()
+                                   .scale(yScale)
+                                   .ticks(20);*/
+
+               const xAxis = (g) => g
+                             .attr('transform', `translate(0,${height - margin.bottom})`)
+                             //.attr('transform', `translate(0,${h-padding})`)
+                            .call(d3.axisBottom(xScale));
+
+                const yAxis = (g) => g
+                              .attr('transform', `translate(${margin.left},0)`)
+                              //.attr('transform', `translate(${padding}},0)`)
+                              .call(d3.axisLeft(yScale));               
+
+                /*const lineGenerator = d3.line()
+                              .defined(d => !isNaN(d.value))
+                              .x(d => xScale(d.year))
+                              .y(d => yScale(d.value));*/
+
+                const line = d3.line()
+                    .x(d => xScale(d.year))
+                    .y(d => yScale(d.value))
+                    .curve(d3.curveCatmullRom.alpha(0.5));
+
+                const svg = d3.select('#vis')
+                              .append('svg')
+                              .attr('width', width)
+                              .attr('height', height)
+                              .append("g")
+                              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");            
+                
+                    svg.append('g').call(xAxis)
+                    svg.append('g').call(yAxis)
+                    
+                    /*svg.append('.line')
+                      .data(dataset)
+                      .attr('d', line);*/
+
+                 /* const line = d3.line()
+                    .x(function(d) { return xScale(d.year); })
+                    .y(function(d) { return yScale(d.value); }); */             
+
+                svg.selectAll(".line") 
+                   .data([dataset]) 
+                   .enter()
+                   .append("path")
+                   //.append("line")
+                   //.attr("class", d => +d.value)
+                   .attr("class", "line")
+                   .attr("d", line)       
+                   .on("mouseover", (event, d)=> {
+              d3.select("#tooltip")
+               .transition()
+               .duration(300)//milliseconds!
+               .style("opacity", 1)
+               .style("left", (event.pageX + 2) + "px")//x coordinate of mouse
+               .style("top", (event.pageY + 2) + "px")//y coordinate of mouse
+        tooltip.html("Year: " + "<br>" + d.year + "<br>" + "Sleep Quality: " + d.value );//setting the html here for the <br>
+               
+            })     
+          .on("mouseout", (event, d)=>{
+            d3.select("#tooltip")
+              .transition()
+              .style("opacity", 0);
+            })
+          .on("mousemove", (event, d) =>{
+            d3.select("#tooltip")
+              .style("left", (event.pageX + 2) + "px")
+              .style("top", (event.pageY + 2) + "px");
+            })
+                   //.attr("transform", d => 'translate(' + xScale(d[0]) + "," + yScale(d[1]) + ')');
+                   //.attr("x", d => xScale(d.year)) 
+                  //.attr("y", d => yScale(+value))
+                  //.attr("width", xScale.bandwidth())
+                   //.attr("height", d => (height-margin) - yScale(+d.value));
+
+               /*const svg = d3.select(".line")
+                             .append("svg")
+                             .attr("width", width)
+                             .attr("height", height)
+                             .attr("role","img")
+                             .attr("aria-labelledby", "title desc");*/
+
+    
+                /*svg.append("title")
+                   .text("Sleep Quality by Location")
+                   .attr("id", "title") 
+
+
+                svg.append("desc")
+                   .text("A Bar Chart representing my sleep quality by location. Fill is dependent x.")
+                   .attr("id", "desc")*/
+
+                
+                /*svg.append("g")
+                .attr("class", "axis") 
+                .attr("transform", "translate(0," + (h-padding) + ")") 
+                .call(bottomAxis);
+                  // .attr("transform", "translate(0," + (height - margin) + ")") 
+                   //.call(bottomAxis); */
+
+    
+                /* svg.append("g")
+                 .attr("class", "axis") 
+                 .attr("transform", "translate(" + padding + ",0)") 
+                 .call(leftAxis);
+                    //.attr("transform", "translate(" + margin + ",0)")
+                    //.call(leftAxis); */
+
+            
+                svg.append("text")
+                   .attr("x", width/2) //x coordinate
+                   .attr("y", 3) //y coordinate
+                   .attr("text-anchor", "middle") //horizontal text alignment
+                   .attr("fill", "black")
+                   .attr("class", "title")
+                   .text("Average Hours of Sleep (Per Day)"); //the text 
+               
+
+                 svg.append("text")
+                    .attr("x", width/2) //x coordinate
+                    .attr("y", 20) //y coordinate
+                    .attr("text-anchor", "middle") //horizontal text alignment
+                    .attr("fill", "black")
+                    .attr("class", "description")
+                    .text("Based on data from my Sleep Cycle app");
+
+
+            
+            	svg.append("text")
+            	   .attr("x", -height/2)
+            	   .attr("y", 2)
+            	   .attr("text-anchor", "middle")
+            	   .attr("transform", "rotate(-90)")
+            	   .attr("fill", "black")
+                   .attr("class", "label")
+                   .text("Average Hours of Sleep"); //
+
+                  })
+            
+        </script>
+    </body>
+</html>

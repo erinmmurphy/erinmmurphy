@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Sleep Quality by Year</title>
+        <script src= "https://d3js.org/d3.v7.min.js"></script>
+        <style type="text/css">
+
+
+
+      body {
+        width: 600px;
+        margin: .2;
+       /* background-color: lightsteelblue;*/
+       background: rgb(245,246,209);
+      background: linear-gradient(rgba(245,246,209,1) 0%, rgba(163,197,236,1) 100%) fixed;
+        }   
+            
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: sans-serif;
+          }
+
+        .label{
+            font-size: 14px;
+            font-weight: normal;
+            font-family: sans-serif;
+          }
+
+        .description {
+            font-size: 14px;
+            font-weight: normal;
+            font-family: sans-serif;
+        }
+
+        .bars {
+        	fill: midnightblue;
+          stroke: rgb(1, 1, 51);
+          stroke-width: .5;
+          }
+
+          .bars:hover{
+            fill: navy;
+            opacity: 0.3;
+            stroke: rgb(1, 1, 51);
+            stroke-width: 2;
+            stroke-opacity: 4;
+          }
+          
+        
+          #tooltip{
+            position: absolute;
+            width: 90px;
+            height: 60px;
+            padding: 2px;    
+            text-align: center; 
+            font-family:sans-serif;
+            font-size: 12px;
+            font-weight: 350;
+            background: white; 
+            border-radius: 8px;
+          }
+      
+
+        </style>
+    </head>
+    <body>
+     <div class="column project-snippet"></div>
+    <div id="vis"></div>
+    <svg width="0" height="0"></svg>
+
+    <script type="text/javascript">
+
+                
+                const margin = 60; 
+                const width = 600; 
+                const height = 500;                
+
+                const tooltip =d3.select("body")
+                          .append("div")
+                          .attr("id", "tooltip")
+                          .style("opacity", 0);
+
+            d3.csv("sleep_qual_by_yr.csv")
+            .then( function (dataset) {              
+
+                const maxY = d3.max(dataset, d => +d.avg_sleep_quality);
+
+                const xScale = d3.scaleBand()
+                                 .domain(dataset.map(d => d.year))
+                                 //.domain(d3.range(dataset.length))
+                                .range([margin, width - margin])
+                                 .padding(.35);
+                
+                const yScale = d3.scaleLinear()
+                                 .domain([0, 1]) 
+                                 .range([height - margin, margin]);
+                
+                const bottomAxis = d3.axisBottom()
+                                     .scale(xScale);
+                
+                const leftAxis = d3.axisLeft()
+                                   .scale(yScale);
+
+                
+               const svg = d3.select("#vis")
+                             .append("svg")
+                             .attr("width", width)
+                             .attr("height", height)
+                             .attr("role","img")
+                             .attr("aria-labelledby", "title desc");//
+
+    
+                svg.append("title")
+                   .text("Sleep Quality by Year")
+                   .attr("id", "title") 
+
+
+                svg.append("desc")
+                   .text("A Bar Chart representing my sleep quality by year.")
+                   .attr("id", "desc")
+
+                svg.selectAll(".bars") 
+                   .data(dataset) 
+                   .enter()
+                   .append("rect")
+                   .attr("class", "bars")
+                   //.attr("class", d => +d.avg_sleep_quality)
+                   .attr("x", d => xScale(d.year)) 
+                   .attr("y", d => yScale(+d.avg_sleep_quality))
+                   .attr("width", xScale.bandwidth())
+                   .attr("height", d => (height-margin) - yScale(+d.avg_sleep_quality))
+                   //.attr("rx", 6) //  x corner curve radius
+                   //.attr("ry", 6) // y corner curve radius;
+                   .on("mouseover", (event, d)=> {
+             d3.select("#tooltip")
+               .transition()
+               .duration(300)//milliseconds!
+               .style("opacity", 1)
+               .style("left", (event.pageX + 2) + "px")//x coordinate of mouse
+               .style("top", (event.pageY + 2) + "px")//y coordinate of mouse
+        tooltip.html("Year: " + "<br>" + d.year + "<br>" + "Sleep Quality: " + d.avg_sleep_quality );//setting the html here for the <br>
+               
+            })     
+          .on("mouseout", (event, d)=>{
+            d3.select("#tooltip")
+              .transition()
+              .style("opacity", 0);
+            })
+          .on("mousemove", (event, d) =>{
+            d3.select("#tooltip")
+              .style("left", (event.pageX + 2) + "px")
+              .style("top", (event.pageY + 2) + "px");
+    })
+                  
+                   
+
+
+        
+                svg.append("g")
+                   .attr("transform", "translate(0," + (height - margin) + ")") 
+                   .call(bottomAxis); 
+
+
+    
+                 svg.append("g")
+                    .attr("transform", "translate(" + margin + ",0)")
+                    .call(leftAxis); 
+
+
+            
+                svg.append("text")
+                   .attr("x", width/2) //x coordinate
+                   .attr("y", 30) //y coordinate
+                   .attr("text-anchor", "middle") //horizontal text alignment
+                   .attr("fill", "black")
+                   .attr("class", "title")
+                   .text("Average Sleep Quality by Year"); //the text 
+               
+
+                 svg.append("text")
+                    .attr("x", width/2) //x coordinate
+                    .attr("y", 45) //y coordinate
+                    .attr("text-anchor", "middle") //horizontal text alignment
+                    .attr("fill", "black")
+                    .attr("class", "description")
+                    .text("Based on data from my Sleep Cycle app");
+
+
+            
+            	svg.append("text")
+            	   .attr("x", -height/2)
+            	   .attr("y", 15)
+            	   .attr("text-anchor", "middle")
+            	   .attr("transform", "rotate(-90)")
+            	   .attr("fill", "black")
+                   .attr("class", "label")
+                   .text("Sleep Quality (percentage)"); //
+
+                  })
+            
+        </script>
+    </body>
+</html>
