@@ -5,39 +5,470 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title> Final Project </title>
-    <script src="https://kit.fontawesome.com/4c7366de42.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="bulma.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="https://kit.fontawesome.com/4c7366de42.js" crossorigin="anonymous"></script>
+
 </head>
 
 <body>
 
-    <body>
-        <section class="section">
-            <div class="container">
-                <h1 class="title">
-                    Project Title
-                </h1>
-                <p class="subtitle">
-                    The project <strong>subtitle</strong>!
-                </p>
-            </div>
-        </section>
 
-        <section class="section">
-            <div class="container">
-                <div class="block">
-                    This text is within a <strong>block</strong>.
-                </div>
-                <div class="block">
-                    This text is within a <strong>second block</strong>. Lorem ipsum dolor sit amet, consectetur
-                    adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus
-                    turpis.
-                </div>
-                <div class="block">
-                    This text is within a <strong>third block</strong>. This block has no margin at the bottom.
-                </div>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                The State of Unions and Labor Organizing in the US from 2008-22
+            </h1>
+            <p class="subtitle">
+                The project <strong>subtitle</strong>!
+            </p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="block">
+                This text is within a <strong>block</strong>.
             </div>
-        </section>
-    </body>
+            <div class="block">
+                This text is within a <strong>second block</strong>. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus
+                turpis.
+            </div>
+            <div class="block">
+                This text is within a <strong>third block</strong>. This block has no margin at the bottom.
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="title is-6">Average Union Density by State 2008-22</p>
+            <p class="subtitle is-7 has-text-grey">Percent of total employed who are union members</p>
+
+            <div id="my_dataviz"></div>
+
+            <script>
+
+                const tooltip = d3.select("body")
+                    .append("div")
+                    .attr("id", "tooltip")
+                    .style("opacity", 0);
+
+                // set the dimensions and margins of the graph
+                const margin = { top: 10, right: 40, bottom: 40, left: 95 },
+                    width = 600 - margin.left - margin.right,
+                    height = 500 - margin.top - margin.bottom;
+
+                // append the svg object to the body of the page
+                const svg = d3.select("#my_dataviz")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                // Parse the Data
+
+                d3.csv("data/g_state_df.csv").then(function (data) {
+
+                    // sort data
+                    data.sort(function (b, a) {
+                        return a.mem_pct - b.mem_pct;
+                    });
+
+                    // Add X axis
+                    const x = d3.scaleLinear()
+                        .domain([0, 24])
+                        .range([0, width]);
+                    svg.append("g")
+                        .attr("transform", `translate(0, ${height})`)
+                        .call(d3.axisBottom(x))
+                        .selectAll("text")
+                        .attr("transform", "translate(3,0)rotate(-0)")
+                        .style("text-anchor", "end")
+                        ;
+
+                    // Y axis
+                    const y = d3.scaleBand()
+                        .range([0, height])
+                        .domain(data.map(d => d.state))
+                        .padding(.2);
+                    svg.append("g")
+                        .call(d3.axisLeft(y))
+
+                    svg.append("text")
+
+                        .attr("x", 155)
+                        .attr("y", height + margin.top + 20)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "black")
+                        .attr("class", "label")
+                        .text("% of Employed who are union members");
+
+                    // const testcolor = d3.scaleOrdinal(d3.schemeSpectral[7])
+                    const color2 = d3.scaleSequential(d3.interpolateViridis).domain([23, 2])
+                    // const  myColor = d3.scaleOrdinal()
+                    // .domain(data.map((ele, ind) => ind))
+                    // .range(d3.interpolateViridis[52]);
+                    // .range(d3.schemeSpectral[50]);
+                    //  const barCharColors =  d3.scaleOrdinal(d3.schemeBlues[4]).domain([0,50]);
+
+
+                    //   const interpolator = color2.interpolator(); // read its interpolator
+                    //   const mirror = t => interpolator(1 - t); // creates a mirror image of the interpolator
+                    //     color2.interpolator(mirror); // updates the scale’s interpolator
+
+
+                    //Bars
+                    svg.selectAll("r")
+                        .data(data)
+                        .join("rect")
+                        .attr("x", x(0))
+                        .attr("y", d => y(d.state))
+                        .attr("width", d => x(d.mem_pct))
+                        .attr("height", y.bandwidth())
+                        .attr("fill", d => color2(d.mem_pct))
+
+                        .on("mouseover", function (event, d) {
+                            d3.select("#tooltip")
+                                .attr("class", "hover")
+                                //.attr("fill", "skyblue")
+                                .attr("opacity", 0.5)
+                                .attr("stroke", "black")
+                                .attr("stroke-width", 1)
+                                .attr("stroke-opacity", 4);
+                            tooltip.transition()
+                                .duration(300)
+                                .style("opacity", .9);
+                            tooltip.html(d.state + "<br/>" + d.mem_pct + "%")
+                                .style("left", (event.pageX) + "px")
+                                .style("top", (event.pageY - 28) + "px");
+                        })
+                })
+                    .on("mouseout", (event, d) => {
+                        d3.select("#tooltip")
+                            .transition()
+                            .duration(300)
+                            .style("opacity", 0)
+
+                            ;
+                    })
+                    .on("mousemove", (event, d) => {
+                        d3.select("#tooltip")
+                            .style("left", (event.pageX + 2) + "px")
+                            .style("top", (event.pageY + 2) + "px");
+                    })
+
+
+            </script>
+            <p class="subtitle is-7 has-text-grey is-centered">Source: Bureau of Labor Statistics data via
+                Unionstats.com</p>
+        </div>
+    </section>
+
+
+    <section class="section">
+        <div class="container">
+            <div class="block">
+                This text is within a <strong>block</strong>.
+            </div>
+            <div class="block">
+                This text is within a <strong>second block</strong>. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus
+                turpis.
+            </div>
+            <div class="block">
+                This text is within a <strong>third block</strong>. This block has no margin at the bottom.
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="title is-6">Work Stoppages 2008-22</p>
+            <p class="subtitle is-7 has-text-grey">subtitle</p>
+
+
+            <!-- Create a div where the graph will take place -->
+            <div id="ws_area"></div>
+
+            <script>
+
+                const tooltip2 = d3.select("body")
+                    .append("div")
+                    .attr("id", "tooltip")
+                    .style("opacity", 0);
+
+
+                // append the svg2 object to the body of the page
+                const svg2 = d3.select("#ws_area")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right + 200)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                //Read the data
+                d3.csv("data/work-stoppages-annual-clean.csv",
+
+                    // When reading the csv, I must format variables:
+                    function (d) {
+                        return { year: d3.timeParse("%Y")(d.year), work_stoppage_in_effect: d.work_stoppage_in_effect }
+                    }).then(
+
+                        // Now I can use this dataset:
+                        function (data) {
+
+                            // Add X axis --> it is a date format
+                            const x = d3.scaleTime()
+                                .domain(d3.extent(data, function (d) { return d.year; }))
+                                .range([15, width]);
+                            svg2.append("g")
+                                .attr("class", "grid")
+                                .attr("transform", `translate(0, ${height + 5})`)
+                                .call(d3.axisBottom(x)
+                                    .tickSize(-height, 0)
+                                    //.tickFormat("")
+                                    //.tickPadding(10)
+                                );
+
+                            // Add Y axis
+                            const y = d3.scaleLinear()
+                                .domain([0, d3.max(data, function (d) { return +d.work_stoppage_in_effect; })])
+                                .range([height, 0]);
+                            svg2.append("g")
+                                .call(d3.axisLeft(y));
+
+
+                            // Add the area
+                            svg2.append("path")
+                                .datum(data)
+                                .attr("fill", "#5ec962")
+                                .attr("fill-opacity", 0.05)
+                                .attr("stroke", "#none")
+                                .attr("d", d3.area()
+                                    //.curve(d3.curveCardinal)
+                                    .x(function (d) { return x(d.year) })
+                                    .y0(y(0))
+                                    .y1(function (d) { return y(d.work_stoppage_in_effect) })
+                                )
+                            // add y-axis label        
+                            svg2.append("text")
+                                .attr("text-anchor", "end")
+                                .attr("x", -margin.top - 125)
+                                .attr("y", -margin.left + 55)
+                                .attr("transform", "rotate(-90)")
+                                .attr("fill", "black")
+                                .attr("class", "label")
+                                .text("Number of Work Stoppages");
+
+                            // Add the line
+                            svg2.append("path")
+                                .datum(data)
+                                .attr("fill", "none")
+                                .attr("stroke", "#5ec962")
+                                .attr("stroke-width", 3)
+                                .attr("d", d3.line()
+                                    .x(d => x(d.year))
+                                    .y(d => y(d.work_stoppage_in_effect))
+                                )
+
+                                .on("mouseover", function (event, d) {
+                                    d3.select("#tooltip")
+                                        .attr("class", "tooltip")
+                                        .attr("class", "hover")
+                                        .attr("opacity", 0.5)
+                                        .attr("stroke", "black")
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke-opacity", 4);
+                                    tooltip2.transition()
+                                        .duration(300)
+                                        .style("opacity", .9);
+                                    tooltip2.html(d.year + "<br/>" + d.work_stoppage_in_effect)
+                                        .style("left", (event.pageX) + "px")
+                                        .style("top", (event.pageY - 28) + "px");
+                                })
+                        })
+                    .on("mouseout", (event, d) => {
+                        d3.select("#tooltip")
+                            .transition()
+                            .duration(300)
+                            .style("opacity", 0);
+
+
+                    })
+                    .on("mousemove", (event, d) => {
+                        d3.select("#tooltip")
+                            .style("left", (event.pageX + 2) + "px")
+                            .style("top", (event.pageY + 2) + "px");
+                    })
+
+
+            </script>
+            <p class="subtitle is-7 has-text-grey is-centered">Source: National Labor Relations Board</p>
+
+
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="block">
+                This text is within a <strong>block</strong>.
+            </div>
+            <div class="block">
+                This text is within a <strong>second block</strong>. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus
+                turpis.
+            </div>
+            <div class="block">
+                This text is within a <strong>third block</strong>. This block has no margin at the bottom.
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="title is-6">Union Elections Held 2008-22</p>
+            <p class="subtitle is-7 has-text-grey">Total elections held per year from 2008-22</p>
+
+            <div id="elec_area"></div>
+
+
+            <script>
+
+                const tooltip3 = d3.select("body")
+                    .append("div")
+                    .attr("id", "tooltip")
+                    .style("opacity", 0);
+
+
+                // append the svg3 object to the body of the page
+                const svg3 = d3.select("#elec_area")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right + 200)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                //Read the data
+                d3.csv("data/tallied_yr.csv",
+
+                    // When reading the csv, I must format variables:
+                    function (d) {
+                        return { year: d3.timeParse("%Y")(d.year), elections_tallied: d.elections_tallied }
+                    }).then(
+
+                        // Now I can use this dataset:
+                        function (data) {
+
+                            // Add X axis --> it is a date format
+                            const x = d3.scaleTime()
+                                .domain(d3.extent(data, function (d) { return d.year; }))
+                                .range([15, width]);
+                            svg3.append("g")
+                                .attr("class", "grid")
+                                .attr("transform", `translate(0, ${height + 5})`)
+                                .call(d3.axisBottom(x)
+                                    .tickSize(-height, 0)
+                                    //.tickFormat("")
+                                    //.tickPadding(10)
+                                );
+
+                            // Add Y axis
+                            const y = d3.scaleLinear()
+                                .domain([0, d3.max(data, function (d) { return +d.elections_tallied; })])
+                                .range([height, 0]);
+                            svg3.append("g")
+                                .call(d3.axisLeft(y));
+
+
+                            // Add the area
+                            svg3.append("path")
+                                .datum(data)
+                                .attr("fill", "#440154")
+                                .attr("fill-opacity", 0.06)
+                                .attr("stroke", "#none")
+                                .attr("d", d3.area()
+                                    //.curve(d3.curveCardinal)
+                                    .x(function (d) { return x(d.year) })
+                                    .y0(y(0))
+                                    .y1(function (d) { return y(d.elections_tallied) })
+                                )
+                            // add y-axis label        
+                            svg3.append("text")
+                                .attr("text-anchor", "end")
+                                .attr("x", -margin.top - 125)
+                                .attr("y", -margin.left + 55)
+                                .attr("transform", "rotate(-90)")
+                                .attr("fill", "black")
+                                .attr("class", "label")
+                                .text("Number of Elections Tallied");
+
+                            // Add the line
+                            svg3.append("path")
+                                .datum(data)
+                                .attr("fill", "none")
+                                .attr("stroke", "#440154")
+                                .attr("stroke-width", 3)
+                                .attr("d", d3.line()
+                                    .x(d => x(d.year))
+                                    .y(d => y(d.elections_tallied))
+                                )
+
+                                .on("mouseover", function (event, d) {
+                                    d3.select("#tooltip")
+                                        .attr("class", "tooltip")
+                                        .attr("class", "hover")
+                                        .attr("opacity", 0.5)
+                                        .attr("stroke", "black")
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke-opacity", 4);
+                                    tooltip3.transition()
+                                        .duration(300)
+                                        .style("opacity", .9);
+                                    tooltip3.html(d.year + "<br/>" + d.elections_tallied)
+                                        .style("left", (event.pageX) + "px")
+                                        .style("top", (event.pageY - 28) + "px");
+                                })
+
+                                .on("mouseout", (event, d) => {
+                                    d3.select("#tooltip")
+                                        .transition()
+                                        .duration(300)
+                                        .style("opacity", 0);
+                                })
+
+                                .on("mousemove", (event, d) => {
+                                    d3.select("#tooltip")
+                                        .style("left", (event.pageX + 2) + "px")
+                                        .style("top", (event.pageY + 2) + "px");
+                                })
+                        })    
+            </script>
+
+        </div>
+        <p class="subtitle is-7 has-text-grey is-centered">Source: National Labor Relations Board</p>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="block">
+                This text is within a <strong>block</strong>.
+            </div>
+            <div class="block">
+                This text is within a <strong>second block</strong>. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus
+                turpis.
+            </div>
+            <div class="block">
+                This text is within a <strong>third block</strong>. This block has no margin at the bottom.
+            </div>
+        </div>
+    </section>
+
+</body>
 
 </html>

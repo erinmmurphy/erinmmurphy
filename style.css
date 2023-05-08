@@ -1,33 +1,66 @@
 /* custom stylesheet for erinmmurphy.github.io */
 
-main{
-  padding-left:3.5em;
-  padding-right:3.5em;
+main {
+  padding-left: 3.5em;
+  padding-right: 3.5em;
 }
 
-.projects-container{
-	  display:flex;
-  flex-direction:row;
+.projects-container {
+  display: flex;
+  flex-direction: row;
 }
 
-.project-snippet{
-	flex:1;
-	text-align: center;
+.project-snippet {
+  flex: 1;
+  text-align: center;
 }
 
-.project_snippet a{
-   text-decoration: none;
+.project_snippet a {
+  text-decoration: none;
   color: black;
 }
 
-.project_snippet img{
-	width: 75%;
+.project_snippet img {
+  width: 75%;
 }
 
-.project_image{
-	  width: 80%;
+.project_image {
+  width: 80%;
   height: 375px;
-  margin:auto;
-  background-size:contain;
-  background-repeat:no-repeat;
+  margin: auto;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: normal;
+  font-family: sans-serif;
+}
+
+.grid line {
+  stroke: #e6e6e6;
+  stroke-dasharray: 2 2;
+}
+
+.hover {
+  fill: navy;
+  opacity: 0.3;
+  stroke: rgb(1, 1, 51);
+  stroke-width: 2;
+  stroke-opacity: 4;
+}
+
+
+#tooltip {
+  position: absolute;
+  width: 100px;
+  height: 50px;
+  padding: 7px;
+  text-align: left;
+  font-family: sans-serif;
+  font-size: 12px;
+  font-weight: 350;
+  background: white;
+  border-radius: 8px;
 }
