@@ -26,128 +26,277 @@
         </div>
     </section>
 
-    <!-- Create a div where the graph will take place -->
-    <div id="mem_area"></div>
+    <section class="section">
+        <div class="container">
+            <div class="block">
+                This text is within a <strong>block</strong>.
+            </div>
+            <div class="block">
+                This text is within a <strong>second block</strong>. Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus
+                turpis.
+            </div>
+            <div class="block">
+                This text is within a <strong>third block</strong>. This block has no margin at the bottom.
+            </div>
+        </div>
+    </section>
 
-    <script>
+    <section class="section">
+        <div class="container">
+            <p class="title is-6">Union Membership Rate from 1983-22</p>
+            <p class="subtitle is-7 has-text-grey">Percent of total employed who are union members</p>
 
-        const tooltip4 = d3.select("body")
-            .append("div")
-            .attr("id", "tooltip")
-            .style("opacity", 0);
+            <!-- Create a div where the graph will take place -->
+            <div id="mem_area"></div>
 
-        // set the dimensions and margins of the graph
-        const margin = { top: 10, right: 40, bottom: 40, left: 95 },
-            width = 600 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+            <script>
 
-        // append the svg4 object to the body of the page
-        const svg4 = d3.select("#mem_area")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right + 50)
-            .attr("height", height + margin.top + margin.bottom - 1)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+                const tooltip4 = d3.select("body")
+                    .append("div")
+                    .attr("id", "tooltip")
+                    .style("opacity", 0);
 
-        //Read the data
-        d3.csv("data/u_mem_pct_1983-22.csv",
+                // set the dimensions and margins of the graph
+                const margin = { top: 10, right: 40, bottom: 40, left: 95 },
+                    width = 800 - margin.left - margin.right,
+                    height = 460 - margin.top - margin.bottom;
 
-            // When reading the csv, I must format variables:
-            function (d) {
-                return { year: d3.timeParse("%Y")(d.year), u_mem_pct: d.u_mem_pct }
-            }).then(
+                // append the svg4 object to the body of the page
+                const svg4 = d3.select("#mem_area")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-                // Now I can use this dataset:
-                function (data) {
+                //Read the data
+                d3.csv("data/u_mem_pct_1983-22.csv",
 
-                    // Add X axis --> it is a date format
-                    const x = d3.scaleTime()
-                        .domain(d3.extent(data, function (d) { return d.year; }))
-                        .range([0, width]);
-                    svg4.append("g")
-                        .attr("class", "grid")
-                        .attr("transform", `translate(0, ${height + 5})`)
-                        .call(d3.axisBottom(x)
-                            .ticks(10)
-                            .tickSize(-height, 0)
-                            //.tickFormat("")
-                            //.tickPadding(10)
-                        );
+                    // When reading the csv, I must format variables:
+                    function (d) {
+                        return { year: d3.timeParse("%Y")(d.year), u_mem_pct: d.u_mem_pct }
+                    }).then(
 
-                    // Add Y axis
-                    const y = d3.scaleLinear()
-                        .domain([0, d3.max(data, function (d) { return +d.u_mem_pct; }) + 5])
-                        .range([height, 0]);
-                    svg4.append("g")
-                        .call(d3.axisLeft(y));
+                        // Now I can use this dataset:
+                        function (data) {
+
+                            // Add X axis --> it is a date format
+                            const x = d3.scaleTime()
+                                .domain(d3.extent(data, function (d) { return d.year; }))
+                                .range([0, width]);
+                            svg4.append("g")
+                                .attr("class", "grid")
+                                .attr("transform", `translate(0, ${height + 5})`)
+                                .call(d3.axisBottom(x)
+                                    .ticks(10)
+                                    .tickSize(-height, 0)
+                                    //.tickFormat("")
+                                    //.tickPadding(10)
+                                );
+
+                            // Add Y axis
+                            const y = d3.scaleLinear()
+                                .domain([0, d3.max(data, function (d) { return +d.u_mem_pct; }) + 5])
+                                .range([height, 0]);
+                            svg4.append("g")
+                                .call(d3.axisLeft(y));
 
 
-                    // Add the area
-                    svg4.append("path")
-                        .datum(data)
-                        .attr("fill", "#90d743")
-                        .attr("fill-opacity", 0.06)
-                        .attr("stroke", "#none")
-                        .attr("d", d3.area()
-                            //.curve(d3.curveCardinal)
-                            .x(function (d) { return x(d.year) })
-                            .y0(y(0))
-                            .y1(function (d) { return y(d.u_mem_pct) })
-                        )
-                    // add y-axis label        
-                    svg4.append("text")
-                        .attr("text-anchor", "end")
-                        .attr("x", -margin.top - 125)
-                        .attr("y", -margin.left + 55)
-                        .attr("transform", "rotate(-90)")
-                        .attr("fill", "black")
-                        .attr("class", "label")
-                        .text("Union Membership");
+                            // Add the area
+                            svg4.append("path")
+                                .datum(data)
+                                .attr("fill", "#90d743")
+                                .attr("fill-opacity", 0.06)
+                                .attr("stroke", "#none")
+                                .attr("d", d3.area()
+                                    //.curve(d3.curveCardinal)
+                                    .x(function (d) { return x(d.year) })
+                                    .y0(y(0))
+                                    .y1(function (d) { return y(d.u_mem_pct) })
+                                )
+                            // add y-axis label        
+                            svg4.append("text")
+                                .attr("text-anchor", "end")
+                                .attr("x", -margin.top - 125)
+                                .attr("y", -margin.left + 55)
+                                .attr("transform", "rotate(-90)")
+                                .attr("fill", "black")
+                                .attr("class", "label")
+                                .text("Union Membership");
 
-                    // Add the line
-                    svg4.append("path")
-                        .datum(data)
-                        .attr("fill", "none")
-                        .attr("stroke", "#90d743")
-                        .attr("stroke-width", 3)
-                        .attr("d", d3.line()
-                            .x(d => x(d.year))
-                            .y(d => y(d.u_mem_pct))
-                        )
+                            // Add the line
+                            svg4.append("path")
+                                .datum(data)
+                                .attr("fill", "none")
+                                .attr("stroke", "#90d743")
+                                .attr("stroke-width", 3)
+                                .attr("d", d3.line()
+                                    .x(d => x(d.year))
+                                    .y(d => y(d.u_mem_pct))
+                                )
 
-                        .on("mouseover", function (event, d) {
-                            d3.select("#tooltip")
-                                .attr("class", "tooltip")
-                                .attr("class", "hover")
-                                .attr("opacity", 0.5)
-                                .attr("stroke", "black")
-                                .attr("stroke-width", 1)
-                                .attr("stroke-opacity", 4);
-                            tooltip4.transition()
-                                .duration(300)
-                                .style("opacity", .9);
-                            tooltip4.html(d.year + "<br/>" + d.u_mem_pct)
-                                .style("left", (event.pageX) + "px")
-                                .style("top", (event.pageY - 28) + "px");
+                                .on("mouseover", function (event, d) {
+                                    d3.select("#tooltip")
+                                        .attr("class", "tooltip")
+                                        .attr("class", "hover")
+                                        .attr("opacity", 0.5)
+                                        .attr("stroke", "black")
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke-opacity", 4);
+                                    tooltip4.transition()
+                                        .duration(300)
+                                        .style("opacity", .9);
+                                    tooltip4.html(d.year + "<br/>" + d.u_mem_pct)
+                                        .style("left", (event.pageX) + "px")
+                                        .style("top", (event.pageY - 28) + "px");
+                                })
+
+                                .on("mouseout", (event, d) => {
+                                    d3.select("#tooltip")
+                                        .transition()
+                                        .duration(300)
+                                        .style("opacity", 0);
+                                })
+
+                                .on("mousemove", (event, d) => {
+                                    d3.select("#tooltip")
+                                        .style("left", (event.pageX + 2) + "px")
+                                        .style("top", (event.pageY + 2) + "px");
+                                })
+                        })    
+            </script>
+            <p class="subtitle is-7 has-text-grey is-centered">Source: Bureau of Labor Statistics data via
+                Unionstats.com</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="title is-6">Gallup poll</p>
+            <p class="subtitle is-7 has-text-grey">subtitle</p>
+
+            <!-- Create a div where the graph will take place -->
+            <div id="gallup"></div>
+
+            <script>
+
+                const tooltip5 = d3.select("body")
+                    .append("div")
+                    .attr("id", "tooltip")
+                    .style("opacity", 0);
+
+
+                // append the svg5 object to the body of the page
+                const svg5 = d3.select("#gallup")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                //Read the data
+                d3.csv("data/Gallup_data.csv",
+
+                    // When reading the csv, I must format variables:
+                    function (d) {
+                        return { year: d3.timeParse("%Y")(d.year), pct_approve: d.pct_approve }
+                    }).then(
+
+                        // Now I can use this dataset:
+                        function (data) {
+
+                            // Add X axis --> it is a date format
+                            const x = d3.scaleTime()
+                                .domain(d3.extent(data, function (d) { return d.year; }))
+                                .range([0, width + 50]);
+                            svg5.append("g")
+                                .attr("class", "grid")
+                                .attr("transform", `translate(0, ${height + 5})`)
+                                .call(d3.axisBottom(x)
+                                    .ticks(10)
+                                    .tickSize(-height, 0)
+                                    //.tickFormat("")
+                                    //.tickPadding(10)
+                                );
+
+                            // Add Y axis
+                            const y = d3.scaleLinear()
+                                .domain([0, d3.max(data, function (d) { return +d.pct_approve; }) + 5])
+                                .range([height, 0]);
+                            svg5.append("g")
+                                .call(d3.axisLeft(y));
+
+
+                            // Add the area
+                            svg5.append("path")
+                                .datum(data)
+                                .attr("fill", "#3b528b")
+                                .attr("fill-opacity", 0.06)
+                                .attr("stroke", "#none")
+                                .attr("d", d3.area()
+                                    //.curve(d3.curveCardinal)
+                                    .x(function (d) { return x(d.year) })
+                                    .y0(y(0))
+                                    .y1(function (d) { return y(d.pct_approve) })
+                                )
+                            // add y-axis label        
+                            svg5.append("text")
+                                .attr("text-anchor", "end")
+                                .attr("x", -margin.top - 125)
+                                .attr("y", -margin.left + 55)
+                                .attr("transform", "rotate(-90)")
+                                .attr("fill", "black")
+                                .attr("class", "label")
+                                .text("Union Membership");
+
+                            // Add the line
+                            svg5.append("path")
+                                .datum(data)
+                                .attr("fill", "none")
+                                .attr("stroke", "#3b528b")
+                                .attr("stroke-width", 3)
+                                .attr("d", d3.line()
+                                    .x(d => x(d.year))
+                                    .y(d => y(d.pct_approve))
+                                )
+
+                                .on("mouseover", function (event, d) {
+                                    console.log(d);
+                                    d3.select("#tooltip")
+                                        //.attr("class", "tooltip")
+                                        .attr("class", "hover")
+                                        .attr("opacity", 0.5)
+                                        .attr("stroke", "black")
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke-opacity", 4);
+                                    tooltip5.transition()
+                                        .duration(300)
+                                        .style("opacity", .9);
+                                    tooltip5.html(d.year + "<br/>" + d.pct_approve + "%")
+                                        //tooltip5.html(d3.select(this).datum().year + "<br/>" + d3.select(this).datum().pct_approve)
+                                        .style("left", (event.pageX) + "px")
+                                        .style("top", (event.pageY - 28) + "px");
+                                })
                         })
 
-                        .on("mouseout", (event, d) => {
-                            d3.select("#tooltip")
-                                .transition()
-                                .duration(300)
-                                .style("opacity", 0);
-                        })
+                    .on("mouseout", (event, d) => {
+                        d3.select(this)
+                            .transition()
+                            //.duration(300)
+                            .style("opacity", 0);
+                    })
 
-                        .on("mousemove", (event, d) => {
-                            d3.select("#tooltip")
-                                .style("left", (event.pageX + 2) + "px")
-                                .style("top", (event.pageY + 2) + "px");
-                        })
-                })    
-    </script>
+                    .on("mousemove", (event, d) => {
+                        d3.select(this)
+                            .style("left", (event.pageX + 2) + "px")
+                            .style("top", (event.pageY + 2) + "px");
+                    })
 
-    </div>
-    <p class="subtitle is-7 has-text-grey is-centered">Source: Bureau of Labor Statistics via Unionstats.com</p>
+            </script>
+            <p class="subtitle is-7 has-text-grey is-centered">Source: Bureau of Labor Statistics data via
+                Unionstats.com</p>
+        </div>
     </section>
 
 
