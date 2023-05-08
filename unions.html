@@ -26,6 +26,131 @@
         </div>
     </section>
 
+    <!-- Create a div where the graph will take place -->
+    <div id="mem_area"></div>
+
+    <script>
+
+        const tooltip4 = d3.select("body")
+            .append("div")
+            .attr("id", "tooltip")
+            .style("opacity", 0);
+
+        // set the dimensions and margins of the graph
+        const margin = { top: 10, right: 40, bottom: 40, left: 95 },
+            width = 600 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        // append the svg4 object to the body of the page
+        const svg4 = d3.select("#mem_area")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right + 50)
+            .attr("height", height + margin.top + margin.bottom - 1)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        //Read the data
+        d3.csv("data/u_mem_pct_1983-22.csv",
+
+            // When reading the csv, I must format variables:
+            function (d) {
+                return { year: d3.timeParse("%Y")(d.year), u_mem_pct: d.u_mem_pct }
+            }).then(
+
+                // Now I can use this dataset:
+                function (data) {
+
+                    // Add X axis --> it is a date format
+                    const x = d3.scaleTime()
+                        .domain(d3.extent(data, function (d) { return d.year; }))
+                        .range([0, width]);
+                    svg4.append("g")
+                        .attr("class", "grid")
+                        .attr("transform", `translate(0, ${height + 5})`)
+                        .call(d3.axisBottom(x)
+                            .ticks(10)
+                            .tickSize(-height, 0)
+                            //.tickFormat("")
+                            //.tickPadding(10)
+                        );
+
+                    // Add Y axis
+                    const y = d3.scaleLinear()
+                        .domain([0, d3.max(data, function (d) { return +d.u_mem_pct; }) + 5])
+                        .range([height, 0]);
+                    svg4.append("g")
+                        .call(d3.axisLeft(y));
+
+
+                    // Add the area
+                    svg4.append("path")
+                        .datum(data)
+                        .attr("fill", "#90d743")
+                        .attr("fill-opacity", 0.06)
+                        .attr("stroke", "#none")
+                        .attr("d", d3.area()
+                            //.curve(d3.curveCardinal)
+                            .x(function (d) { return x(d.year) })
+                            .y0(y(0))
+                            .y1(function (d) { return y(d.u_mem_pct) })
+                        )
+                    // add y-axis label        
+                    svg4.append("text")
+                        .attr("text-anchor", "end")
+                        .attr("x", -margin.top - 125)
+                        .attr("y", -margin.left + 55)
+                        .attr("transform", "rotate(-90)")
+                        .attr("fill", "black")
+                        .attr("class", "label")
+                        .text("Union Membership");
+
+                    // Add the line
+                    svg4.append("path")
+                        .datum(data)
+                        .attr("fill", "none")
+                        .attr("stroke", "#90d743")
+                        .attr("stroke-width", 3)
+                        .attr("d", d3.line()
+                            .x(d => x(d.year))
+                            .y(d => y(d.u_mem_pct))
+                        )
+
+                        .on("mouseover", function (event, d) {
+                            d3.select("#tooltip")
+                                .attr("class", "tooltip")
+                                .attr("class", "hover")
+                                .attr("opacity", 0.5)
+                                .attr("stroke", "black")
+                                .attr("stroke-width", 1)
+                                .attr("stroke-opacity", 4);
+                            tooltip4.transition()
+                                .duration(300)
+                                .style("opacity", .9);
+                            tooltip4.html(d.year + "<br/>" + d.u_mem_pct)
+                                .style("left", (event.pageX) + "px")
+                                .style("top", (event.pageY - 28) + "px");
+                        })
+
+                        .on("mouseout", (event, d) => {
+                            d3.select("#tooltip")
+                                .transition()
+                                .duration(300)
+                                .style("opacity", 0);
+                        })
+
+                        .on("mousemove", (event, d) => {
+                            d3.select("#tooltip")
+                                .style("left", (event.pageX + 2) + "px")
+                                .style("top", (event.pageY + 2) + "px");
+                        })
+                })    
+    </script>
+
+    </div>
+    <p class="subtitle is-7 has-text-grey is-centered">Source: Bureau of Labor Statistics via Unionstats.com</p>
+    </section>
+
+
     <section class="section">
         <div class="container">
             <div class="block">
@@ -56,10 +181,7 @@
                     .attr("id", "tooltip")
                     .style("opacity", 0);
 
-                // set the dimensions and margins of the graph
-                const margin = { top: 10, right: 40, bottom: 40, left: 95 },
-                    width = 600 - margin.left - margin.right,
-                    height = 500 - margin.top - margin.bottom;
+
 
                 // append the svg object to the body of the page
                 const svg = d3.select("#my_dataviz")
@@ -331,6 +453,7 @@
             <p class="subtitle is-7 has-text-grey">Work stoppages, or strikes, of groups of workers 1000+ are tracked
                 and reported on by the NLRB. Any strike with less than 1000 workers is not represented in their data.
             </p>
+
 
 
             <!-- Create a div where the graph will take place -->
