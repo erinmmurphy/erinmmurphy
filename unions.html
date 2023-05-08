@@ -20,26 +20,21 @@
             <h1 class="title">
                 The State of Unions and Labor Organizing in the US from 2008-22
             </h1>
-            <p class="subtitle">
-                The project <strong>subtitle</strong>!
-            </p>
+
         </div>
     </section>
 
     <section class="section">
         <div class="container">
             <div class="block">
-                This text is within a <strong>block</strong>.
+
+                <div class="block">
+                    Using data from the Bureau of Labor Statistics (via Unionstats.com) and the National Labor Relations
+                    Board, this project explores the rate of union membership, which has been on a steady decline, as
+                    compared to more trends in labor organizing, which has been increasing in recent years.
+                </div>
+
             </div>
-            <div class="block">
-                This text is within a <strong>second block</strong>. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus
-                turpis.
-            </div>
-            <div class="block">
-                This text is within a <strong>third block</strong>. This block has no margin at the bottom.
-            </div>
-        </div>
     </section>
 
     <section class="section">
@@ -58,8 +53,8 @@
                     .style("opacity", 0);
 
                 // set the dimensions and margins of the graph
-                const margin = { top: 10, right: 40, bottom: 40, left: 95 },
-                    width = 800 - margin.left - margin.right,
+                const margin = { top: 10, right: 30, bottom: 40, left: 95 },
+                    width = 700 - margin.left - margin.right,
                     height = 460 - margin.top - margin.bottom;
 
                 // append the svg4 object to the body of the page
@@ -71,7 +66,7 @@
                     .attr("transform", `translate(${margin.left},${margin.top})`);
 
                 //Read the data
-                d3.csv("data/u_mem_pct_1983-22.csv",
+                d3.csv("data/u_mem_pct_1985-22.csv",
 
                     // When reading the csv, I must format variables:
                     function (d) {
@@ -89,7 +84,7 @@
                                 .attr("class", "grid")
                                 .attr("transform", `translate(0, ${height + 5})`)
                                 .call(d3.axisBottom(x)
-                                    .ticks(10)
+                                    .ticks(20)
                                     .tickSize(-height, 0)
                                     //.tickFormat("")
                                     //.tickPadding(10)
@@ -173,8 +168,8 @@
 
     <section class="section">
         <div class="container">
-            <p class="title is-6">Gallup poll</p>
-            <p class="subtitle is-7 has-text-grey">subtitle</p>
+            <p class="title is-6">Americans' Approval of Labor Unions is on the Rise</p>
+            <p class="subtitle is-7 has-text-grey">According to Gallup's annual Work and Education survey</p>
 
             <!-- Create a div where the graph will take place -->
             <div id="gallup"></div>
@@ -209,12 +204,12 @@
                             // Add X axis --> it is a date format
                             const x = d3.scaleTime()
                                 .domain(d3.extent(data, function (d) { return d.year; }))
-                                .range([0, width + 50]);
+                                .range([0, width]);
                             svg5.append("g")
                                 .attr("class", "grid")
                                 .attr("transform", `translate(0, ${height + 5})`)
                                 .call(d3.axisBottom(x)
-                                    .ticks(10)
+                                    .ticks(20)
                                     .tickSize(-height, 0)
                                     //.tickFormat("")
                                     //.tickPadding(10)
@@ -248,7 +243,7 @@
                                 .attr("transform", "rotate(-90)")
                                 .attr("fill", "black")
                                 .attr("class", "label")
-                                .text("Union Membership");
+                                .text("% Approval of Unions");
 
                             // Add the line
                             svg5.append("path")
@@ -294,8 +289,7 @@
                     })
 
             </script>
-            <p class="subtitle is-7 has-text-grey is-centered">Source: Bureau of Labor Statistics data via
-                Unionstats.com</p>
+            <p class="subtitle is-7 has-text-grey is-centered">Source: Gallup</p>
         </div>
     </section>
 
@@ -336,7 +330,7 @@
                 const svg = d3.select("#my_dataviz")
                     .append("svg")
                     .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
+                    .attr("height", height + margin.top + margin.bottom + 50)
                     .append("g")
                     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
