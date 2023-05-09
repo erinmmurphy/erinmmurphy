@@ -444,11 +444,135 @@
 
     <section class="section">
         <div class="container">
+            <p class="title is-6">Petitions for Union Elections Filed 2008-22</p>
+            <p class="subtitle is-7 has-text-grey">Total petitions filed with the NLRB from 2008-22</p>
+
+            <!-- Create a div where the graph will take place -->
+            <div id="petition_area"></div>
+
+            <script>
+
+                const tooltip6 = d3.select("body")
+                    .append("div")
+                    .attr("id", "tooltip")
+                    .style("opacity", 0);
+
+
+                // append the svg6 object to the body of the page
+                const svg6 = d3.select("#petition_area")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right + 200)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                //Read the data
+                d3.csv("data/filings_yr.csv",
+
+                    // When reading the csv, I must format variables:
+                    function (d) {
+                        return { year: d3.timeParse("%Y")(d.year), petition_filings: d.petition_filings }
+                    }).then(
+
+                        // Now I can use this dataset:
+                        function (data) {
+
+                            // Add X axis --> it is a date format
+                            const x = d3.scaleTime()
+                                .domain(d3.extent(data, function (d) { return d.year; }))
+                                .range([15, width]);
+                            svg6.append("g")
+                                .attr("class", "grid")
+                                .attr("transform", `translate(0, ${height + 5})`)
+                                .call(d3.axisBottom(x)
+                                    .tickSize(-height, 0)
+                                    //.tickFormat("")
+                                    //.tickPadding(10)
+                                );
+
+                            // Add Y axis
+                            const y = d3.scaleLinear()
+                                .domain([0, d3.max(data, function (d) { return +d.petition_filings; })])
+                                .range([height, 0]);
+                            svg6.append("g")
+                                .call(d3.axisLeft(y));
+
+
+                            // Add the area
+                            svg6.append("path")
+                                .datum(data)
+                                .attr("fill", "#440154")
+                                .attr("fill-opacity", 0.06)
+                                .attr("stroke", "#none")
+                                .attr("d", d3.area()
+                                    //.curve(d3.curveCardinal)
+                                    .x(function (d) { return x(d.year) })
+                                    .y0(y(0))
+                                    .y1(function (d) { return y(d.petition_filings) })
+                                )
+                            // add y-axis label        
+                            svg6.append("text")
+                                .attr("text-anchor", "end")
+                                .attr("x", -margin.top - 125)
+                                .attr("y", -margin.left + 55)
+                                .attr("transform", "rotate(-90)")
+                                .attr("fill", "black")
+                                .attr("class", "label")
+                                .text("Petitions Filed");
+
+                            // Add the line
+                            svg6.append("path")
+                                .datum(data)
+                                .attr("fill", "none")
+                                .attr("stroke", "#440154")
+                                .attr("stroke-width", 3)
+                                .attr("d", d3.line()
+                                    .x(d => x(d.year))
+                                    .y(d => y(d.petition_filings))
+                                )
+
+                                .on("mouseover", function (event, d) {
+                                    d3.select("#tooltip")
+                                        .attr("class", "tooltip")
+                                        .attr("class", "hover")
+                                        .attr("opacity", 0.5)
+                                        .attr("stroke", "black")
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke-opacity", 4);
+                                    tooltip6.transition()
+                                        .duration(300)
+                                        .style("opacity", .9);
+                                    tooltip6.html(d.year + "<br/>" + d.petition_filings)
+                                        .style("left", (event.pageX) + "px")
+                                        .style("top", (event.pageY - 28) + "px");
+                                })
+
+                                .on("mouseout", (event, d) => {
+                                    d3.select("#tooltip")
+                                        .transition()
+                                        .duration(300)
+                                        .style("opacity", 0);
+                                })
+
+                                .on("mousemove", (event, d) => {
+                                    d3.select("#tooltip")
+                                        .style("left", (event.pageX + 2) + "px")
+                                        .style("top", (event.pageY + 2) + "px");
+                                })
+                        })    
+            </script>
+
+        </div>
+        <p class="subtitle is-7 has-text-grey is-centered">Source: National Labor Relations Board</p>
+    </section>
+
+
+    <section class="section">
+        <div class="container">
             <p class="title is-6">Union Elections Held 2008-22</p>
             <p class="subtitle is-7 has-text-grey">Total elections held per year from 2008-22</p>
 
             <div id="elec_area"></div>
-
 
             <script>
 
