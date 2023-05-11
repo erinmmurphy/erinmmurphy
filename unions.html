@@ -428,16 +428,15 @@
                         d3.select("#tooltip")
                             .transition()
                             .duration(300)
-                            .style("opacity", 0)
+                            .style("opacity", 0);
 
-                            ;
+
                     })
                     .on("mousemove", (event, d) => {
                         d3.select("#tooltip")
                             .style("left", (event.pageX + 2) + "px")
                             .style("top", (event.pageY + 2) + "px");
                     })
-
 
             </script>
             <p class="subtitle is-7 has-text-grey is-centered">Source: Bureau of Labor Statistics data via
@@ -450,9 +449,13 @@
         <div class="container">
             <div class="block">
                 The above shows the average union density by state from 2008-22 sorted by states with the highest to
-                lowest union density. I thought it was surprising that Hawaii had the second highest union membership.
+                lowest union density. Hawaii has the second highest union membership in this time period. The state has
+                had historically high unionization, which is attributed to a legacy of labor organizing and strikes,
+                most notably the
+                <a
+                    href="https://www.hawaiipublicradio.org/local-news/2017-09-04/1946-sugar-strike-the-rise-of-hawai%CA%BBis-labor-unions">sugar
+                    strike of 1946</a>, which shut down nearly all of the sugar plantations in Hawaii.
             </div>
-
         </div>
     </section>
 
