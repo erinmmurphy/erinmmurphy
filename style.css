@@ -64,3 +64,7 @@ main {
   background: white;
   border-radius: 8px;
 }
+
+.section {
+  padding: 2rem 1.5rem;
+}
